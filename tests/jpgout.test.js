@@ -60,3 +60,15 @@ describe("transparency", () => {
     expect(ops[fill].slice(1)).toEqual([0, 0, 4, 3]);
   });
 });
+
+describe("duplicate names", () => {
+  it("gives every zip entry a unique name", async () => {
+    const w = load();
+    const { downloads } = stubCanvas(w);
+    await convert(w, [file(w, "photo.webp"), file(w, "photo.png"), file(w, "photo.heic"), file(w, "photo-2.webp")]);
+    const buf = downloads.at(-1).parts[0];
+    const names = readZip(buf).map((e) => e.name);
+    expect(new Set(names.map((n) => n.toLowerCase())).size).toBe(4);
+    expect(names.slice(0, 2)).toEqual(["photo.jpg", "photo-2.jpg"]);
+  });
+});
