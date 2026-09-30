@@ -190,6 +190,16 @@
         return out;
       }
 
+      // "photo.jpg", "photo-2.jpg", ... so zip entries never collide.
+      function uniqueName(name, used) {
+        const dot = name.lastIndexOf(".");
+        const stem = name.slice(0, dot), ext = name.slice(dot);
+        let n = name, i = 2;
+        while (used.has(n.toLowerCase())) n = stem + "-" + i++ + ext;
+        used.add(n.toLowerCase());
+        return n;
+      }
+
       async function toJpeg(file) {
         const bmp = await createImageBitmap(file);
         const c = document.createElement("canvas");
@@ -261,9 +271,11 @@
         $("warn").textContent = "";
         $("log").innerHTML = "";
         const out = [];
+        const used = new Set();
         for (const f of picked) {
           try {
             const j = await toJpeg(f);
+            j.name = uniqueName(j.name, used);
             out.push(j);
             const li = document.createElement("li");
             li.textContent = f.name + " → " + j.name + " (" + j.w + "×" + j.h + ")";

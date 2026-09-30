@@ -14,6 +14,8 @@ export function stubCanvas(w) {
   w.HTMLCanvasElement.prototype.toBlob = function (cb, type) {
     cb({ type, arrayBuffer: async () => new Uint8Array([0xff, 0xd8, 0xff, 0xd9]).buffer });
   };
+  const B = w.Blob;
+  w.Blob = class extends B { constructor(p, o) { super(p, o); this.parts = p; } };
   const downloads = [];
   w.URL.createObjectURL = (b) => { downloads.push(b); return "blob:x"; };
   w.URL.revokeObjectURL = () => {};
