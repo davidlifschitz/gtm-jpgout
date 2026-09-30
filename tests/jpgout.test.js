@@ -46,3 +46,17 @@ describe("page", () => {
     expect(w.document.getElementById("run").disabled).toBe(false);
   });
 });
+
+describe("transparency", () => {
+  it("paints white under the image before encoding", async () => {
+    const w = load();
+    const { ops } = stubCanvas(w);
+    await convert(w, [file(w, "logo.webp")]);
+    const fill = ops.findIndex((o) => o[0] === "fillRect");
+    const draw = ops.findIndex((o) => o[0] === "drawImage");
+    expect(fill).toBeGreaterThanOrEqual(0);
+    expect(fill).toBeLessThan(draw);
+    expect(ops.find((o) => o[0] === "set:fillStyle")?.[1]).toMatch(/^(#fff|#ffffff|white)$/i);
+    expect(ops[fill].slice(1)).toEqual([0, 0, 4, 3]);
+  });
+});
