@@ -196,6 +196,9 @@
         c.width = bmp.width;
         c.height = bmp.height;
         const ctx = c.getContext("2d");
+        // JPEG has no alpha; without this, transparent pixels encode as black.
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(0, 0, c.width, c.height);
         ctx.drawImage(bmp, 0, 0);
         bmp.close();
         const blob = await new Promise((res) => c.toBlob(res, "image/jpeg", 0.86));
