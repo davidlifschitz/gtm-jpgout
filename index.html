@@ -220,15 +220,17 @@
 
       function setFiles(list) {
         $("warn").textContent = "";
-        const next = [];
+        const next = [], big = [];
+        let extra = 0;
         for (const f of list) {
-          if (next.length >= MAX_N) break;
-          if (f.size > MAX_B) {
-            $("warn").textContent = f.name + " is over 8 MB.";
-            continue;
-          }
-          next.push(f);
+          if (f.size > MAX_B) big.push(f.name);
+          else if (next.length >= MAX_N) extra++;
+          else next.push(f);
         }
+        const notes = [];
+        if (big.length) notes.push(big.join(", ") + (big.length > 1 ? " are" : " is") + " over 8 MB.");
+        if (extra) notes.push(extra + " file(s) past the 8-file cap left out.");
+        $("warn").textContent = notes.join(" ");
         picked = next;
         $("drop").classList.toggle("filled", picked.length > 0);
         $("hint").textContent = picked.length
