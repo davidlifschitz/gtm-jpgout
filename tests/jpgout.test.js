@@ -72,3 +72,22 @@ describe("duplicate names", () => {
     expect(names.slice(0, 2)).toEqual(["photo.jpg", "photo-2.jpg"]);
   });
 });
+
+describe("limits", () => {
+  it("says how many files past the cap were left out", () => {
+    const w = load();
+    stubCanvas(w);
+    w.setFiles(Array.from({ length: 11 }, (_, i) => file(w, `p${i}.webp`)));
+    expect(w.document.querySelectorAll("#thumbs img")).toHaveLength(8);
+    expect(w.document.getElementById("warn").textContent).toContain("3 file(s) past the 8-file cap left out");
+  });
+  it("names every oversize file", () => {
+    const w = load();
+    stubCanvas(w);
+    const big = 8 * 1024 * 1024 + 1;
+    w.setFiles([file(w, "a.webp", big), file(w, "b.webp", big), file(w, "c.webp")]);
+    const warn = w.document.getElementById("warn").textContent;
+    expect(warn).toContain("a.webp");
+    expect(warn).toContain("b.webp");
+  });
+});
